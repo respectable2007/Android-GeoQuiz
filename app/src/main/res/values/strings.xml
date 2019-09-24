@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name" translatable="false">GeoQuiz</string>
+    <string name="question_text" translatable="false">Beijing is the captial of China?</string>
+    <string name="true_button" translatable="false">True</string>
+    <string name="false_button" translatable="false">False</string>
+    <string name="next_button" translatable="false">Next</string>
+    <string name="correct_toast" translatable="false">Correct!</string>
+    <string name="incorrect_toast" translatable="false">Incorrect!</string>
+
+</resources>
