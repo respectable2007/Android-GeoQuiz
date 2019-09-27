@@ -2,6 +2,7 @@ package com.zh.example.geoquiz;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mFalseButton;
     private ImageButton mNextButton;
    // private ImageButton mPrevButton;
+    private Button mCheatButton;
     private TextView mTextView;
     private  Question[] mQuestionBank = new Question[]{
         new Question(R.string.question_china, true),
@@ -29,8 +31,10 @@ public class MainActivity extends AppCompatActivity {
     };
     private  int mCurrentIndex = 0;
     private  float mCorrects = 0;
+    private  boolean mIsCheated;
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "index";
+    private  static int REQUEST_CODE_CHEAT = 0;
     @Override
     protected void onSaveInstanceState(Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         });
         //用户答案true
         mTrueButton =(Button) findViewById(R.id.true_button);
+//        mTrueButton =(Button) findViewById(R.id.question_text_view);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                     mCorrects = 0;
                     mCurrentIndex = 0;
                 }
+                mIsCheated = false;
                 updateTextView();
                 mTrueButton.setEnabled(true);
                 mFalseButton.setEnabled(true);
@@ -121,25 +127,55 @@ public class MainActivity extends AppCompatActivity {
                 updateTextView();
             }
         });*/
+        //查看答案
+        mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //获取当前问题的答案
+                boolean isAnswerTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+                //构造要被启动activity
+                Intent intent = CheatActivity.newIntent(MainActivity.this, isAnswerTrue);
+                //启动子activity，并需要返回值
+                startActivityForResult(intent, REQUEST_CODE_CHEAT);
+            }
+        });
+    }
+    //重写onActivityResult，获取子activity返回的结果
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode != RESULT_OK) {
+            return;
+        }
+        if(requestCode == REQUEST_CODE_CHEAT) {
+          if(data == null) {
+              return;
+          }
+          mIsCheated = CheatActivity.wasAnswerShown(data);
+        }
     }
     //问题切换
     private void updateTextView() {
         int question = mQuestionBank[mCurrentIndex].getTextResId();
+//        Log.d(TAG, "update text:", new Exception());
         mTextView.setText(question);
     }
     //问题答案判断
     private  void checkAnswer(boolean userPressedTrue) {
         boolean answer = mQuestionBank[mCurrentIndex].isAnswerTrue();
         int toastMsg = 0;
-        if(answer == userPressedTrue){
-            toastMsg = R.string.correct_toast;
-            mCorrects += 1;
+        if(mIsCheated) {
+            toastMsg = R.string.judgment_toast;
         } else {
-           toastMsg = R.string.incorrect_toast;
+            if(answer == userPressedTrue){
+                toastMsg = R.string.correct_toast;
+                mCorrects += 1;
+            } else {
+                toastMsg = R.string.incorrect_toast;
+            }
         }
         Toast.makeText(MainActivity.this,toastMsg,
                 Toast.LENGTH_SHORT).show();
-
     }
     //Activity的onStart
     @Override

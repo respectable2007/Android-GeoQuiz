@@ -12,5 +12,9 @@
     <string name="prev_button" translatable="false">Prev</string>
     <string name="correct_toast" translatable="false">Correct!</string>
     <string name="incorrect_toast" translatable="false">Incorrect!</string>
+    <string name="warning_text" translatable="false">Are you sure you want to do this?</string>
     <string name="first_toast" translatable="false">First!</string>
+    <string name="show_answer_button" translatable="false">Show Answer</string>
+    <string name="cheat_button" translatable="false">Cheat!</string>
+    <string name="judgment_toast" translatable="false">Cheating is wrong.</string>
 </resources>
