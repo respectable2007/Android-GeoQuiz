@@ -31,14 +31,19 @@ public class MainActivity extends AppCompatActivity {
     };
     private  int mCurrentIndex = 0;
     private  float mCorrects = 0;
-    private  boolean mIsCheated;
+    private  boolean mIsCheated = false;
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "index";
+    private static final String KEY_CHEAT = "ischeated";
     private  static int REQUEST_CODE_CHEAT = 0;
+    //保存每个问题答案是否被查看
+    private boolean[] mCheatBank = new boolean[]{false,false,false,false,false,false};
+    //stop前，即当前类被销毁前，暂存当前类所要保留的数据
     @Override
     protected void onSaveInstanceState(Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
         saveInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        saveInstanceState.putBooleanArray(KEY_CHEAT, mCheatBank);
 //        Log.d(TAG, "saveInstanceState");
     }
     //Activity方法：onCreate
@@ -47,8 +52,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 //        Log.d(TAG, "create called");
         setContentView(R.layout.activity_main);
+        //获取暂存的数据
         if(savedInstanceState != null) {
           mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+          mIsCheated = savedInstanceState.getBooleanArray(KEY_CHEAT)[mCurrentIndex];
         }
         /*显示问题内容*/
         mTextView =(TextView) findViewById(R.id.question_text_view);
@@ -105,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     mCorrects = 0;
                     mCurrentIndex = 0;
                 }
-                mIsCheated = false;
+//                mIsCheated = false;
                 updateTextView();
                 mTrueButton.setEnabled(true);
                 mFalseButton.setEnabled(true);
@@ -152,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
               return;
           }
           mIsCheated = CheatActivity.wasAnswerShown(data);
+          mCheatBank[mCurrentIndex] = mIsCheated;
         }
     }
     //问题切换

@@ -15,10 +15,24 @@ public class CheatActivity extends AppCompatActivity {
     private boolean mAnswerTrue;
     private Button mCheatButton;
     private TextView mTextView;
+    private boolean mIsCheated = false;
+    /*onSaveInstanceState，保存当前activity操作结果*/
+    @Override
+    public void onSaveInstanceState(Bundle saveInstanceState) {
+        super.onSaveInstanceState(saveInstanceState);
+        saveInstanceState.putBoolean(SHOW_ANSWER_TRUE, mIsCheated);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cheat);
+        //获取保存的数据，并返回给父类activity
+        if(savedInstanceState != null) {
+            mIsCheated = savedInstanceState.getBoolean(SHOW_ANSWER_TRUE);
+            if(mIsCheated){
+                newSetResult();
+            }
+        }
         //通过getIntent方法，读取父activity传入的数据
         mAnswerTrue = getIntent().getBooleanExtra(EXTRA_IS_ANSWER_TRUE,false);
         mTextView = (TextView) findViewById(R.id.answer_text_view);
@@ -27,11 +41,16 @@ public class CheatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mTextView.setText(mAnswerTrue?R.string.true_button:R.string.false_button);
-                Intent intent = new Intent();
-                intent.putExtra(SHOW_ANSWER_TRUE, true);
-                setResult(RESULT_OK, intent);
+                mIsCheated = true;
+                newSetResult();
             }
         });
+    }
+    //封装返回父类activity方法setResult
+    public void newSetResult() {
+        Intent intent = new Intent();
+        intent.putExtra(SHOW_ANSWER_TRUE, mIsCheated);
+        setResult(RESULT_OK, intent);
     }
     //解析子activity返回的intent数据
     public static boolean wasAnswerShown(Intent intent){
@@ -43,4 +62,5 @@ public class CheatActivity extends AppCompatActivity {
       intent.putExtra(EXTRA_IS_ANSWER_TRUE, isAnswerTrue);
       return intent;
     }
+
 }
