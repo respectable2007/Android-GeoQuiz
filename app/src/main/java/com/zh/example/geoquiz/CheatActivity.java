@@ -2,10 +2,13 @@ package com.zh.example.geoquiz;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -15,7 +18,9 @@ public class CheatActivity extends AppCompatActivity {
     private boolean mAnswerTrue;
     private Button mCheatButton;
     private TextView mTextView;
+    private TextView mVersionView;
     private boolean mIsCheated = false;
+    private String mVersion;
     /*onSaveInstanceState，保存当前activity操作结果*/
     @Override
     public void onSaveInstanceState(Bundle saveInstanceState) {
@@ -43,8 +48,21 @@ public class CheatActivity extends AppCompatActivity {
                 mTextView.setText(mAnswerTrue?R.string.true_button:R.string.false_button);
                 mIsCheated = true;
                 newSetResult();
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    int cx = mCheatButton.getWidth() / 2;
+                    int cy = mCheatButton.getHeight() / 2;
+                    float radius = mCheatButton.getWidth();
+                    //Android5 API 动画
+                    Animator anim = ViewAnimationUtils
+                                    .createCircularReveal(mCheatButton, cx, cy, radius, 0);
+                    anim.start();
+                }
             }
         });
+        //显示设备版本
+        mVersionView = (TextView) findViewById(R.id.version_view);
+        mVersion = "API Level " + Build.VERSION.SDK_INT;
+        mVersionView.setText(mVersion);
     }
     //封装返回父类activity方法setResult
     public void newSetResult() {

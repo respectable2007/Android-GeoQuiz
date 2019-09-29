@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
    // private ImageButton mPrevButton;
     private Button mCheatButton;
     private TextView mTextView;
+    private TextView mCheatsView;
     private  Question[] mQuestionBank = new Question[]{
         new Question(R.string.question_china, true),
         new Question(R.string.question_oceans, true),
@@ -35,15 +36,20 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "index";
     private static final String KEY_CHEAT = "ischeated";
+    private static final String KEY_CHEATS = "cheats";
     private  static int REQUEST_CODE_CHEAT = 0;
     //保存每个问题答案是否被查看
     private boolean[] mCheatBank = new boolean[]{false,false,false,false,false,false};
+    private String mCheatsText;
+    //记录偷看次数
+    private int mCheats = 3;
     //stop前，即当前类被销毁前，暂存当前类所要保留的数据
     @Override
     protected void onSaveInstanceState(Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
         saveInstanceState.putInt(KEY_INDEX, mCurrentIndex);
         saveInstanceState.putBooleanArray(KEY_CHEAT, mCheatBank);
+        saveInstanceState.putInt(KEY_CHEATS, mCheats);
 //        Log.d(TAG, "saveInstanceState");
     }
     //Activity方法：onCreate
@@ -56,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         if(savedInstanceState != null) {
           mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
           mIsCheated = savedInstanceState.getBooleanArray(KEY_CHEAT)[mCurrentIndex];
+          mCheats = savedInstanceState.getInt(KEY_CHEATS);
+          showCheats();
         }
         /*显示问题内容*/
         mTextView =(TextView) findViewById(R.id.question_text_view);
@@ -147,6 +155,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_CODE_CHEAT);
             }
         });
+        //显示剩余偷看次数
+        mCheatsView = (TextView) findViewById(R.id.cheats_view);
+        showCheats();
     }
     //重写onActivityResult，获取子activity返回的结果
     @Override
@@ -160,6 +171,16 @@ public class MainActivity extends AppCompatActivity {
           }
           mIsCheated = CheatActivity.wasAnswerShown(data);
           mCheatBank[mCurrentIndex] = mIsCheated;
+          mCheats --;
+          showCheats();
+        }
+    }
+    //显示剩余偷看次数
+    private void  showCheats(){
+        mCheatsText = "Can cheat: " + Integer.toString(mCheats) + " times";
+        mCheatsView.setText(mCheatsText);
+        if(mCheats == 0) {
+            mCheatButton.setEnabled(false);
         }
     }
     //问题切换
